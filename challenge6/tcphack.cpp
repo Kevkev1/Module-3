@@ -10,7 +10,7 @@
 void sendPacket(uint8_t* buffer, size_t length);
 void sendTcp(int seq, int ack, int ctrl, const uint8_t* buffer, size_t length);
 void sendHttp(const char* str, int seq, int ack, int ctrl);
-void addData(const uint8_t* data, size_t lenght, int offset);
+void addData(const uint8_t* data, size_t lenght);
 void printData();
 void calculateChecksum(uint8_t* buffer);
 
@@ -55,10 +55,10 @@ int main(void) {
 				if(fin) done = true;
 				else {
 					printf("After\n");
-					size_t dataLength = recvLength - (SIZE_IP6HEADER + SIZE_TCPHEADER);
+					size_t dataLength = recvLength - (SIZE_IP6HEADER + (header->dataOffset*4));
 					uint8_t data[dataLength];
 					memcpy(data, recv + (SIZE_IP6HEADER + SIZE_TCPHEADER), dataLength);
-					addData(data, dataLength, header->dataOffset);
+					addData(data, dataLength);
 					printData();
 					if(header->controlBits == 24) {
 						printData();
@@ -76,32 +76,35 @@ int main(void) {
 void calculateChecksum(uint8_t* buffer) {
 	ip6Header* ipHeader = ip6Header::deserialize(buffer);
 
-	uint8_t temp[470];
+	uint8_t temp[60];
+	memset(temp, 0, 60);
 	memcpy(temp, ipHeader->sourceAddress, 16);
 	memcpy(temp + 16, ipHeader->destAddress, 16);
 
 	temp[32] = ipHeader->payloadLength >> 8 & 0xFF;
 	temp[33] = ipHeader->payloadLength & 0xFF;
-
 	temp[39] = ipHeader->nextHeader;
 	memcpy(temp + 40, buffer + SIZE_IP6HEADER, SIZE_TCPHEADER);
 	
 	int sum = 0;
-	for(int i=0; i<470; i++) {
-		sum+= temp[i];
+	for(int i=1; i<60; i++) {
+		sum += temp[i];
 	}
-	
+	sum = (sum & 0xFFFF) + (sum >> 16);
+	sum = (sum & 0xFFFF) + (sum >> 16);
+
 	buffer[SIZE_IP6HEADER + 16] = sum >> 8 & 0xFF;
 	buffer[SIZE_IP6HEADER + 17] = sum & 0xFF;
+	printf("SDS: %x%x\n", buffer[SIZE_IP6HEADER + 16], buffer[SIZE_IP6HEADER + 17]);
 } 
 
-void addData(const uint8_t* data, size_t length, int offset) {
+void addData(const uint8_t* data, size_t length) {
 	uint8_t tempBuffer[sizeof(totalData)];
 	memcpy(tempBuffer, totalData, sizeof(totalData));
 	delete totalData;
 	totalData = new uint8_t[sizeof(tempBuffer) + length];
 	memcpy(totalData, tempBuffer, sizeof(tempBuffer));
-	memcpy(totalData + offset, data, length);
+	memcpy(totalData, data, length);
 }
 
 void printData() {
@@ -118,11 +121,12 @@ void sendHttp(const char* str, int seq, int ack, int ctrl) {
 void sendTcp(int seq, int ack, int ctrl, const uint8_t* buffer = nullptr, size_t length = 0) {
 	tcpHeader header;
 	header.sourcePort = 50000;
-	header.destPort = 7711;
+	header.destPort = 7701;
 	header.seqNum = seq;
 	header.ackNum = ack;
 	header.controlBits = ctrl;
-	header.window = 8;
+	//header.checksum = 0x66f2;
+	header.window = 8192;
 
 	uint8_t serialized[SIZE_TCPHEADER + length];
 
@@ -133,15 +137,13 @@ void sendTcp(int seq, int ack, int ctrl, const uint8_t* buffer = nullptr, size_t
 }
 
 void sendPacket(uint8_t* buffer, size_t length) {
-	// dest:   2001:067c:2564:a170:0a00:27ff:fe11:cecb
-	// source: 2001:0610:1908:f000:3ea9:f4ff:fe47:ebc8
 	static uint8_t destAddress[16] =   { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x70, 0x0a, 0x00, 0x27, 0xff, 0xfe, 0x11, 0xce, 0xcb };
 	static uint8_t sourceAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x54, 0x06, 0x0c, 0xce, 0xff, 0xfe, 0xd8, 0xba, 0x38};
 
 	ip6Header header;
 
 	header.hopLimit = 8;
-	header.nextHeader = 253;
+	header.nextHeader = 6;
 	header.payloadLength = length;
 	memcpy(header.destAddress, destAddress, 16);
 	memcpy(header.sourceAddress, sourceAddress, 16);
@@ -150,7 +152,7 @@ void sendPacket(uint8_t* buffer, size_t length) {
 	header.serialize(serialized);
 	memcpy(serialized + SIZE_IP6HEADER, buffer, length);
 
-	calculateChecksum(buffer);
+	calculateChecksum(serialized);
 
 	send(serialized, static_cast<int>(length + SIZE_IP6HEADER));
 }
