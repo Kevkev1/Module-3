@@ -25,4 +25,5 @@ public:
 	uint16_t	urgentPointer;	/* 16 bits */
 	
 	void serialize(uint8_t* buffer);
+	tcpHeader deserialize(uint8_t* buffer);
 }

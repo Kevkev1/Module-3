@@ -13,8 +13,7 @@ tcpHeader::tcpHeader() {
 	this->urgentPointer = 0;
 }
 
-void tcpHeader::serialize(uint8_t* buffer) {
-	
+void tcpHeader::serialize(uint8_t* buffer) {	
 	buffer[0] = sourcePort >> 8 & 0xFF;
 	buffer[1] = sourcePort & 0xFF; 
 
@@ -31,8 +30,8 @@ void tcpHeader::serialize(uint8_t* buffer) {
 	buffer[10] = ackNum >> 8 & 0xFF;
 	buffer[11] = ackNum & 0xFF;
 
-	buffer[12] = dataOffset & 0xFF;
-	buffer[13] = controlBits;
+	buffer[12] = dataOffset << 4 & 0xFF;
+	buffer[13] = controlBits & 0xFF;
 	
 	buffer[14] = window >> 8 & 0xFF;
 	buffer[15] = window & 0xFF;
@@ -43,3 +42,23 @@ void tcpHeader::serialize(uint8_t* buffer) {
 	buffer[18] = urgentPointer >> 8 & 0xFF;
 	buffer[19] = urgentPointer & 0xFF;
 }
+
+tcpHeader* tcpHeader::deserialize(uint8_t* buffer) {
+	tcpHeader* header = new tcpHeader();
+
+	header->sourcePort = (buffer[1] << 8 | buffer[0]);
+	header->destPort = (buffer[3] << 8 | buffer[2]);
+	header->seqNum = (buffer[7] << 24 | buffer[6] << 16 | buffer[5] << 8 | buffer[0]);
+	header->ackNum = (buffer[11] << 24 | buffer[10] << 16 | buffer[9] << 8 | buffer[8]);
+	header->dataOffset = (buffer[12] >> 4);
+	header->controlBits = (buffer[13]);
+	header->window = (buffer[15] << 8 | buffer[14]);
+	header->checksum = (buffer[17] << 8 | buffer[16]);
+	header->urgentPointer = (buffer[19] << 8 | buffer[18]);
+
+	return header;
+}
+
+
+
+
