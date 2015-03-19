@@ -121,7 +121,7 @@ void sendHttp(const char* str, int seq, int ack, int ctrl) {
 void sendTcp(int seq, int ack, int ctrl, const uint8_t* buffer = nullptr, size_t length = 0) {
 	tcpHeader header;
 	header.sourcePort = 50000;
-	header.destPort = 7701;
+	header.destPort = 7711;
 	header.seqNum = seq;
 	header.ackNum = ack;
 	header.controlBits = ctrl;
@@ -137,13 +137,15 @@ void sendTcp(int seq, int ack, int ctrl, const uint8_t* buffer = nullptr, size_t
 }
 
 void sendPacket(uint8_t* buffer, size_t length) {
+
 	static uint8_t destAddress[16] =   { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x70, 0x0a, 0x00, 0x27, 0xff, 0xfe, 0x11, 0xce, 0xcb };
-	static uint8_t sourceAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x54, 0x06, 0x0c, 0xce, 0xff, 0xfe, 0xd8, 0xba, 0x38};
+	//static uint8_t sourceAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x54, 0x06, 0x0c, 0xce, 0xff, 0xfe, 0xd8, 0xba, 0x38};
+	static uint8_t sourceAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x54, 0x84, 0x50, 0x76, 0x2a, 0x67, 0x92, 0x63, 0x6a};
 
 	ip6Header header;
 
 	header.hopLimit = 8;
-	header.nextHeader = 6;
+	header.nextHeader = 253;
 	header.payloadLength = length;
 	memcpy(header.destAddress, destAddress, 16);
 	memcpy(header.sourceAddress, sourceAddress, 16);
