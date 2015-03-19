@@ -5,8 +5,10 @@
 #include <string.h>
 
 #include "ip6header.h"
+#include "tcpheader.hpp"
 
 void sendPacket(const uint8_t* buffer, size_t length);
+void sendTcp();
 
 int main(void) {
 	connect();
@@ -17,7 +19,8 @@ int main(void) {
 	while (!done) {
 		printf("sending\n");
 
-		sendPacket(nullptr, 0);
+		//sendPacket(nullptr, 0);
+		sendTcp();
 
 		uint8_t* recv = receive(1000);
 
@@ -43,6 +46,20 @@ int main(void) {
 		//           The length of the packet that was received last can be queried using
 		//           int get_received_length(void).
 	}
+}
+
+void sendTcp() {
+	tcpHeader header;
+	header.sourcePort = 1337;
+	header.destPort = 7711;
+	header.seqNum = 1;
+	header.controlBits = 2;
+	header.window = 8;
+
+	uint8_t buffer[20];
+
+	header.serialize(buffer);
+	sendPacket(buffer, 20);
 }
 
 void sendPacket(const uint8_t* buffer, size_t length) {
