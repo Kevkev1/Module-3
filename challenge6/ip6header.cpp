@@ -13,18 +13,14 @@ ip6Header::ip6Header() {
 }
 
 void ip6Header::serialize(uint8_t* buffer) {
-	// version, trafficClass and flowLabel fields.
-	uint32_t firstSegment = (version & 0x15) << 24 | trafficClass << 20 | (flowLabel & 0xFFFFF);
-
-	buffer[0] = firstSegment >> 24;
-	buffer[1] = (firstSegment >> 16) & 0xff;
-	buffer[2] = (firstSegment >> 8) & 0xff;
-	buffer[3] = firstSegment & 0xff;
+	buffer[0] = (version << 4) | ((trafficClass >> 4) & 0x15);
+	buffer[1] = (trafficClass & 0x15) << 4 | ((flowLabel >> 20) & 0x15);
+	buffer[2] = flowLabel >> 8;
+	buffer[3] = flowLabel & 0xff;
 	buffer[4] = payloadLength >> 8;
 	buffer[5] = payloadLength & 0xff;
 	buffer[6] = nextHeader;
 	buffer[7] = hopLimit;
-
-	memcpy(buffer + 7,  sourceAddress, 16);
-	memcpy(buffer + 23, destAddress,   16);
+	memcpy(buffer + 8, sourceAddress, 16);
+	memcpy(buffer + 24, destAddress, 16);
 }

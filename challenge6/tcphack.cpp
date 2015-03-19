@@ -17,7 +17,7 @@ int main(void) {
 	while (!done) {
 		printf("sending\n");
 
-		send(nullptr, 0);
+		sendPacket(nullptr, 0);
 
 		uint8_t* recv = receive(1000);
 
@@ -48,6 +48,7 @@ int main(void) {
 void sendPacket(const uint8_t* buffer, size_t length) {
 	// 2001:067c:2564:a170:0a00:27ff:fe11:cecb
 	static uint8_t destAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x70, 0x0a, 0x00, 0x27, 0xff, 0xfe, 0x11, 0xce, 0xcb };
+	static uint8_t sourceAddress[16] = {};
 
 	ip6Header header;
 
@@ -55,6 +56,7 @@ void sendPacket(const uint8_t* buffer, size_t length) {
 	header.nextHeader = 6;
 	header.payloadLength = length;
 	memcpy(header.destAddress, destAddress, 16);
+	memcpy(header.sourceAddress, sourceAddress, 16);
 
 	uint8_t serialized[40 + length];
 	header.serialize(serialized);
