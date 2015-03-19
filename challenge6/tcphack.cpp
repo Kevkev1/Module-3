@@ -6,7 +6,7 @@
 
 #include "ip6header.h"
 
-void send(const uint8_t* buffer, size_t length);
+void sendPacket(const uint8_t* buffer, size_t length);
 
 int main(void) {
 	connect();
@@ -37,7 +37,7 @@ int main(void) {
 		//           milliseconds for receive to complete. When the timeout expires before a
 		//           packet is received, a null pointer will be returned.
 		//
-		//           The data you'll receive and send will and should contain all packet 
+		//           The data you'll receive and send will and should contain all packet
 		//           data from the network layer and up.
 		//
 		//           The length of the packet that was received last can be queried using
@@ -45,14 +45,14 @@ int main(void) {
 	}
 }
 
-void send(const uint8_t* buffer, size_t length) {
+void sendPacket(const uint8_t* buffer, size_t length) {
 	// 2001:067c:2564:a170:0a00:27ff:fe11:cecb
 	static uint8_t destAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x70, 0x0a, 0x00, 0x27, 0xff, 0xfe, 0x11, 0xce, 0xcb };
 
 	ip6Header header;
 
 	header.hopLimit = 8;
-	header.nextHeader = 253;
+	header.nextHeader = 6;
 	header.payloadLength = length;
 	memcpy(header.destAddress, destAddress, 16);
 

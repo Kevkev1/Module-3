@@ -5,7 +5,7 @@
 
 class tcpHeader {
 public:
-	tcpHeader:
+	tcpHeader();
 
 	uint16_t	sourcePort;	/* 16 bits */
 	uint16_t	destPort;	/* 16 bits */
@@ -25,5 +25,7 @@ public:
 	uint16_t	urgentPointer;	/* 16 bits */
 	
 	void serialize(uint8_t* buffer);
-	tcpHeader deserialize(uint8_t* buffer);
-}
+	tcpHeader* deserialize(uint8_t* buffer);
+};
+
+#endif
