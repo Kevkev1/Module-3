@@ -46,15 +46,15 @@ void tcpHeader::serialize(uint8_t* buffer) {
 tcpHeader* tcpHeader::deserialize(uint8_t* buffer) {
 	tcpHeader* header = new tcpHeader();
 
-	header->sourcePort = (buffer[1] << 8 | buffer[0]);
-	header->destPort = (buffer[3] << 8 | buffer[2]);
-	header->seqNum = (buffer[7] << 24 | buffer[6] << 16 | buffer[5] << 8 | buffer[0]);
-	header->ackNum = (buffer[11] << 24 | buffer[10] << 16 | buffer[9] << 8 | buffer[8]);
+	header->sourcePort = (buffer[0] << 8 | buffer[1]);
+	header->destPort = (buffer[2] << 8 | buffer[3]);
+	header->seqNum = (buffer[4] << 24 | buffer[5] << 16 | buffer[6] << 8 | buffer[7]);
+	header->ackNum = (buffer[8] << 24 | buffer[9] << 16 | buffer[10] << 8 | buffer[11]);
 	header->dataOffset = (buffer[12] >> 4);
 	header->controlBits = (buffer[13]);
-	header->window = (buffer[15] << 8 | buffer[14]);
-	header->checksum = (buffer[17] << 8 | buffer[16]);
-	header->urgentPointer = (buffer[19] << 8 | buffer[18]);
+	header->window = (buffer[14] << 8 | buffer[15]);
+	header->checksum = (buffer[16] << 8 | buffer[17]);
+	header->urgentPointer = (buffer[18] << 8 | buffer[19]);
 
 	return header;
 }
