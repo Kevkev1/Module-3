@@ -8,7 +8,7 @@
 #include "tcpheader.hpp"
 
 void sendPacket(const uint8_t* buffer, size_t length);
-void sendTcp(int seq, int ack, int ctrl);
+void sendTcp();
 
 int main(void) {
 	connect();
@@ -20,7 +20,7 @@ int main(void) {
 		printf("sending\n");
 
 		//sendPacket(nullptr, 0);
-		sendTcp(1, 0, 2);
+		sendTcp();
 
 		uint8_t* recv = receive(1000);
 
@@ -48,13 +48,12 @@ int main(void) {
 	}
 }
 
-void sendTcp(int seq, int ack, int ctrl) {
+void sendTcp() {
 	tcpHeader header;
-	header.sourcePort = rand() % 16384 + 49152;
+	header.sourcePort = 1337;
 	header.destPort = 7711;
-	header.seqNum = seq;
-	header.ackNum = ack;
-	header.controlBits = ctrl;
+	header.seqNum = 1;
+	header.controlBits = 2;
 	header.window = 8;
 
 	uint8_t buffer[20];
@@ -65,9 +64,8 @@ void sendTcp(int seq, int ack, int ctrl) {
 
 void sendPacket(const uint8_t* buffer, size_t length) {
 	// 2001:067c:2564:a170:0a00:27ff:fe11:cecb
-	// 2001:67c:2564:a154:a029:fa7f:1bb1:100f
 	static uint8_t destAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x70, 0x0a, 0x00, 0x27, 0xff, 0xfe, 0x11, 0xce, 0xcb };
-	static uint8_t sourceAddress[16] = { 0x20, 0x01, 0x06, 0x7c, 0x25, 0x64, 0xa1, 0x54, 0xa0, 0x29, 0xfa, 0x7f, 0x1b, 0xb1, 0x10, 0x0f};
+	static uint8_t sourceAddress[16] = {};
 
 	ip6Header header;
 
