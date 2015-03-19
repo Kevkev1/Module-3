@@ -5,7 +5,7 @@ tcpHeader::tcpHeader() {
 	this->destPort = 0;
 	this->seqNum = 0;
 	this->ackNum = 0;
-	this->dataOffset = 0;
+	this->dataOffset = 5;
 	this->reservedBits = 0;
 	this->controlBits = 0;
 	this->window = 0;

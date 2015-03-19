@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define SIZE_TCPHEADER 20
+
 class tcpHeader {
 public:
 	tcpHeader();
@@ -25,7 +27,7 @@ public:
 	uint16_t	urgentPointer;	/* 16 bits */
 	
 	void serialize(uint8_t* buffer);
-	tcpHeader* deserialize(uint8_t* buffer);
+	static tcpHeader* deserialize(uint8_t* buffer);
 };
 
 #endif

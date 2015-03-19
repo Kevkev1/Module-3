@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define SIZE_IP6HEADER 40
+
 class ip6Header {
 public:
 	ip6Header();
@@ -16,7 +18,8 @@ public:
 	uint8_t		sourceAddress[16]; 	/* 128 bits */
 	uint8_t		destAddress[16];	/* 128 bits */
 
-	void serialize(uint8_t* buffer);
+	void 		serialize(uint8_t* buffer);
+	static ip6Header* deserialize(const uint8_t* buffer);
 
 };
 
